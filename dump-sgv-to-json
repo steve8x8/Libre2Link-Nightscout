@@ -9,28 +9,24 @@ cd `dirname $0`
 # We will merge them because manual scans may fill in
 # important details that otherwise would be missed.
 
-# no timestamp is critical
-if [ ! -f data/last-sgv.time ]
-then
-    echo No last \"sgv\" timestamp found - exiting.
-    exit 98
-fi
-
-# no data isn't critical
-if [ ! -f data/sg-hist.dump ]
-then
-    echo No historicalReadings dump found.
-fi
-if [ ! -f data/sg-real.dump ]
-then
-    echo No realTimeReadings dump found.
-fi
 
 # extract readings records newer than last one in NS
 for what in hist real
 do
+    echo Collecting \"${what}\" data...
+    # no timestamp is critical
+    if [ ! -f data/last-sgv-${what}.time ]
+    then
+	echo No last \"sgv\" timestamp found. # - exiting.
+	continue
+    fi
+    # no data isn't critical
+    if [ ! -f data/sg-${what}.dump ]
+    then
+	echo No \"${what}\" Readings dump found.
+    fi
     (
-    last=`cat data/last-sgv.time`
+    last=`cat data/last-sgv-${what}.time`
     echo -n '['
     cat data/sg-${what}.dump 2>/dev/null \
     | sort -n -k+2 \

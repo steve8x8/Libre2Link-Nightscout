@@ -8,16 +8,29 @@ SECRETSHA1=`echo -n ${SECRET} | sha1sum - | cut -c1-40`
 
 mkdir -p data
 echo querying last sgv ...
+echo ... for non-scan records
 LANG=C \
 curl \
     -s \
     -H "API-SECRET: ${SECRETSHA1}" \
     -H 'Accept: */*' \
     -H 'Content-Type: application/json' \
-    "https://${SERVER}:${PORT}/api/v1/entries.json?count=1&x=`date +%s`&find\[dateString\]\[\$gte\]=2020-01-01&find\[type\]=sgv" \
+    "https://${SERVER}:${PORT}/api/v1/entries.json?count=1&x=`date +%s`&find\[dateString\]\[\$gte\]=2020-01-01&find\[type\]=sgv&find\[device\]\[\$ne\]=LibreLink-DB-real" \
 | tee /dev/stderr \
 | sed -e 's~.*"date":\([0-9]*\)[^0-9].*~\1~' -e 's~null~0~' \
-> data/last-sgv.time
+> data/last-sgv-hist.time
+echo ""
+echo ... for scan records
+LANG=C \
+curl \
+    -s \
+    -H "API-SECRET: ${SECRETSHA1}" \
+    -H 'Accept: */*' \
+    -H 'Content-Type: application/json' \
+    "https://${SERVER}:${PORT}/api/v1/entries.json?count=1&x=`date +%s`&find\[dateString\]\[\$gte\]=2020-01-01&find\[type\]=sgv&find\[device\]=LibreLink-DB-real" \
+| tee /dev/stderr \
+| sed -e 's~.*"date":\([0-9]*\)[^0-9].*~\1~' -e 's~null~0~' \
+>  data/last-sgv-real.time
 echo ""
 # FIXME: handle empty result
 
