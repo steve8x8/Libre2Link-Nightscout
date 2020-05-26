@@ -4,7 +4,7 @@ all: json upload tar fullclean
 
 json: data/sensors.json data/sgv-hist.json data/sgv-real.json
 
-upload: data/sensors.json data/sgv-hist.json data/sgv-real.json
+upload: data/sensors.json data/sgv-hist.json data/sgv-real.json .settings
 	./json-upload
 
 tar:
@@ -30,10 +30,10 @@ data/sg-hist.dump:
 data/sg-real.dump:
 	./db-to-dump
 
-data/last-sensor.time:
+data/last-sensor.time: .settings
 	./query-last-sensor
 
-data/last-sgv.time:
+data/last-sgv.time: .settings
 	./query-last-sgv
 
 data/sensors.json: data/sensors.dump data/last-sensor.time
