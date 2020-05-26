@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#SECRET="MyApiSecret"
+#SERVER="MyNightscoutInstance"
+#PORT=4711
+. .settings || exit 99
+SECRETSHA1=`echo -n ${SECRET} | sha1sum - | cut -c1-40`
+
+mkdir -p log
+
+# skip empty uploads
+if [ `cat data/sensors.json | wc -l` -le 2 ]
+then
+    echo empty sensors.json ... skipping.
+else
+    echo uploading sensors.json ...
+    LANG=C \
+    curl \
+    -v \
+    -X POST \
+    -H "API-SECRET: ${SECRETSHA1}" \
+    -H 'Accept: */*' \
+    -H 'Content-Type: application/json' \
+    "https://${SERVER}:${PORT}/api/v1/treatments.json" \
+    --data @data/sensors.json \
+    2>&1 \
+    | tee -a log/upload.log
+fi
+
+if [ `cat data/sgv.json | wc -l` -le 2 ]
+then
+    echo empty sgv.json ... skipping.
+else
+    echo uploading sgv.json ...
+    LANG=C \
+    curl \
+    -X POST \
+    -H "API-SECRET: ${SECRETSHA1}" \
+    -H 'Accept: */*' \
+    -H 'Content-Type: application/json' \
+    "https://${SERVER}:${PORT}/api/v1/entries.json" \
+    --data @data/sgv.json \
+    2>&1 \
+    | tee -a log/upload.log
+fi

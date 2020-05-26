@@ -1,0 +1,62 @@
+#!/bin/bash
+
+cd `dirname $0`
+
+# OS independent date conversion - this also works on Mac
+ts2tab() {
+ruby -e '
+require "time"
+$stdin.read.each_line { |line|
+    if line =~ /(\d+)\s+(.*)/
+	ep = $1.to_i
+	val = $2
+	ts = Time.at(ep/1000).utc
+	dt = ts.iso8601
+	printf("%s\t%d\t%s\n", dt, ep, val)
+    end
+}'
+}
+
+DB=tmp/apps/com.freestylelibre.app.de/f/sas.db
+
+if ! which ruby >/dev/null
+then
+    echo "\"ruby\" not found - required for date conversion"
+    exit 98
+fi
+if ! which sqlite3 >/dev/null
+then
+    echo "\"sqlite3\" not found - required for database dump"
+    exit 98
+fi
+
+if [ ! -f ${DB} ]
+then
+    echo "database not found - did you extract it from the phome?"
+    exit 97
+fi
+
+# sas database contains sensor information
+mkdir -p data
+sqlite3 -column -noheader ${DB} \
+    'select sensorStartTimestampUTC, serialNumber from sensors;' \
+| ts2tab \
+> data/sensors.dump
+printf "%6d %s\n" `cat data/sensors.dump | wc -l` "sensor serial number records dumped"
+sqlite3 -column -noheader ${DB} \
+    'select timestampUTC, glucoseValue from currentReadings;' \
+| ts2tab \
+> data/sg-curr.dump
+printf "%6d %s\n" `cat data/sg-curr.dump | wc -l` "currentReadings   (1-min) records dumped"
+sqlite3 -column -noheader ${DB} \
+    'select timestampUTC, glucoseValue from historicReadings;' \
+| ts2tab \
+> data/sg-hist.dump
+printf "%6d %s\n" `cat data/sg-hist.dump | wc -l` "historicReadings (15-min) records dumped"
+sqlite3 -column -noheader ${DB} \
+    'select timestampUTC, glucoseValue from realTimeReadings;' \
+| ts2tab \
+> data/sg-real.dump
+printf "%6d %s\n" `cat data/sg-real.dump | wc -l` "realTimeReadings  (scans) records dumped"
+
+exit 0

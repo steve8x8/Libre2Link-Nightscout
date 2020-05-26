@@ -1,0 +1,39 @@
+#!/bin/bash
+
+cd `dirname $0`
+
+# extract sensor records newer than last one in NS
+(
+last=`cat data/last-sensor.time`
+echo -n '['
+cat data/sensors.dump \
+| while read datstr millis code
+do
+    if [ $millis -le $last ]
+    then
+	echo skipping $datstr $millis $code >&2
+	continue
+    fi
+    addms=$(($millis % 1000))
+    datstr=`echo $datstr | sed "s~Z\$~.${addms}Z~"`
+    json="{\"eventType\":\"Sensor Change\",\"date\":${millis},\"created_at\":\"$datstr\",\"enteredBy\":\"`basename $0`\",\"notes\":\"$code\"}"
+    echo $json
+done \
+| sort | uniq \
+| while read line
+do
+    echo ,
+    echo -n "$line"
+done
+echo ""
+echo ']'
+) \
+| sed 's~\[,~[~' \
+| tee data/sensors.json
+echo ""
+if [ `cat data/sensors.json | wc -l` -le 2 ]
+then
+    echo No new sensors found, resulting json file is empty.
+fi
+
+exit

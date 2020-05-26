@@ -1,0 +1,4 @@
+SECRET="MyApiSecret"
+SERVER="MyNightscoutInstance"
+PORT=4711
+

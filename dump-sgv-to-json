@@ -1,0 +1,67 @@
+#!/bin/bash
+
+cd `dirname $0`
+
+# We assume that currentReadings do not exist at all -
+# as they would have been processed by xDrip and uploaded to NS.
+# Thus all we have is 15-minute values and scans, i.e.,
+# historicalReadings and realTimeReadings.
+# We will merge them because manual scans may fill in
+# important details that otherwise would be missed.
+
+# no timestamp is critical
+if [ ! -f data/last-sgv.time ]
+then
+    echo No last \"sgv\" timestamp found - exiting.
+    exit 98
+fi
+
+# no data isn't critical
+if [ ! -f data/sg-hist.dump ]
+then
+    echo No historicalReadings dump found.
+fi
+if [ ! -f data/sg-real.dump ]
+then
+    echo No realTimeReadings dump found.
+fi
+
+# extract readings records newer than last one in NS
+for what in hist real
+do
+    (
+    last=`cat data/last-sgv.time`
+    echo -n '['
+    cat data/sg-${what}.dump 2>/dev/null \
+    | sort -n -k+2 \
+    | while read datstr millis sgv
+    do
+	if [ $millis -le $last ]
+	then
+	    #cho skipping $datstr $millis $sgv >&2
+	    continue
+	fi
+	addms=$(($millis % 1000))
+	datstr=`echo $datstr | sed "s~Z\$~.${addms}Z~"`
+	json="{\"device\":\"LibreLink-DB-${what}\",\"rssi\":99,\"date\":${millis},\"dateString\":\"$datstr\",\"type\":\"sgv\",\"sgv\":${sgv}}"
+	echo $json
+    done \
+    | sort | uniq \
+    | while read line
+    do
+	echo ,
+	echo -n "$line"
+    done
+    echo ""
+    echo ']'
+    ) \
+    | sed 's~\[,~[~' \
+    | tee data/sgv-${what}.json
+    echo ""
+    if [ `cat data/sgv-${what}.json | wc -l` -le 2 ]
+    then
+	echo No new measurements found, resulting \"${what}\" json file is empty.
+    fi
+done
+
+exit
