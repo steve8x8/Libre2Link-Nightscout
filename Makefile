@@ -1,11 +1,10 @@
 #!/usr/bin/make -f
 
-all: json upload tar fullclean
+all: json upload tar clean
 
-json: data/sensors.json data/sgv-hist.json data/sgv-real.json
+json:             data/sensors.json data/sgv-hist.json #data/sgv-real.json
 
-upload: data/sensors.json data/sgv-hist.json data/sgv-real.json .settings
-	read -p "do you really want to upload?" x
+upload: .settings data/sensors.json data/sgv-hist.json #data/sgv-real.json
 	./json-upload
 
 tar:
@@ -14,8 +13,6 @@ tar:
 
 clean:
 	rm -rf tmp
-
-fullclean: clean
 	rm -rf data log
 
 
@@ -34,17 +31,20 @@ data/sg-real.dump: tmp/apps/com.freestylelibre.app.de/f/sas.db
 data/last-sensor.time: .settings
 	./query-last-sensor
 
-data/last-sgv.time: .settings
+data/last-sgv-hist.time: .settings
 	./query-last-sgv
+
+#data/last-sgv-real.time: .settings
+#	./query-last-sgv
 
 data/sensors.json: data/sensors.dump data/last-sensor.time
 	./dump-sensors-to-json
 
-data/sgv-hist.json: data/sg-hist.dump data/last-sgv.time
+data/sgv-hist.json: data/sg-hist.dump data/last-sgv-hist.time
 	./dump-sgv-to-json
 
-data/sgv-real.json: data/sg-real.dump data/last-sgv.time
-	./dump-sgv-to-json
+#data/sgv-real.json: data/sg-real.dump data/last-sgv-real.time
+#	./dump-sgv-to-json
 
 
-.PHONY: all json upload tar clean fullclean
+.PHONY: all json upload tar clean

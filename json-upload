@@ -27,11 +27,11 @@ else
     | tee -a log/upload.log
 fi
 
-for what in hist #real
+for what in hist real
 do
-    if [ `cat data/sgv-${what}.json | wc -l` -le 2 ]
+    if [ `cat 2>/dev/null data/sgv-${what}.json | wc -l` -le 2 ]
     then
-	echo empty sgv-${what}.json ... skipping.
+	echo empty or missing sgv-${what}.json ... skipping.
     else
 	echo uploading sgv-${what}.json ...
 	LANG=C \
