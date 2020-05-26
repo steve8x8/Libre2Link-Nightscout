@@ -27,19 +27,22 @@ else
     | tee -a log/upload.log
 fi
 
-if [ `cat data/sgv.json | wc -l` -le 2 ]
-then
-    echo empty sgv.json ... skipping.
-else
-    echo uploading sgv.json ...
-    LANG=C \
-    curl \
-    -X POST \
-    -H "API-SECRET: ${SECRETSHA1}" \
-    -H 'Accept: */*' \
-    -H 'Content-Type: application/json' \
-    "https://${SERVER}:${PORT}/api/v1/entries.json" \
-    --data @data/sgv.json \
-    2>&1 \
-    | tee -a log/upload.log
-fi
+for what in hist real
+do
+    if [ `cat data/sgv-${what}.json | wc -l` -le 2 ]
+    then
+	echo empty sgv-${what}.json ... skipping.
+    else
+	echo uploading sgv-${what}.json ...
+	LANG=C \
+	curl \
+	-X POST \
+	-H "API-SECRET: ${SECRETSHA1}" \
+	-H 'Accept: */*' \
+	-H 'Content-Type: application/json' \
+	"https://${SERVER}:${PORT}/api/v1/entries.json" \
+	--data @data/sgv-${what}.json \
+	2>&1 \
+	| tee -a log/upload.log
+    fi
+done
