@@ -5,6 +5,7 @@ all: json upload tar fullclean
 json: data/sensors.json data/sgv-hist.json data/sgv-real.json
 
 upload: data/sensors.json data/sgv-hist.json data/sgv-real.json .settings
+	read -p "do you really want to upload?" x
 	./json-upload
 
 tar:
@@ -18,16 +19,16 @@ fullclean: clean
 	rm -rf data log
 
 
-tmp/apps/com.freestylelibre.app.de/db/sas.db:
+tmp/apps/com.freestylelibre.app.de/f/sas.db:
 	./db-from-app
 
-data/sensors.dump:
+data/sensors.dump: tmp/apps/com.freestylelibre.app.de/f/sas.db
 	./db-to-dump
 
-data/sg-hist.dump:
+data/sg-hist.dump: tmp/apps/com.freestylelibre.app.de/f/sas.db
 	./db-to-dump
 
-data/sg-real.dump:
+data/sg-real.dump: tmp/apps/com.freestylelibre.app.de/f/sas.db
 	./db-to-dump
 
 data/last-sensor.time: .settings

@@ -27,7 +27,7 @@ else
     | tee -a log/upload.log
 fi
 
-for what in hist real
+for what in hist #real
 do
     if [ `cat data/sgv-${what}.json | wc -l` -le 2 ]
     then
