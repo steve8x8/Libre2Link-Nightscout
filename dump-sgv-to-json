@@ -34,10 +34,10 @@ do
     do
 	if [ $millis -le $last ]
 	then
-	    #cho skipping $datstr $millis $sgv >&2
+	    #echo skipping $datstr $millis $sgv >&2
 	    continue
 	fi
-	addms=$(($millis % 1000))
+	addms=`printf "%03d" $(($millis % 1000))`
 	datstr=`echo $datstr | sed "s~Z\$~.${addms}Z~"`
 	json="{\"device\":\"LibreLink-DB-${what}\",\"rssi\":99,\"date\":${millis},\"dateString\":\"$datstr\",\"type\":\"sgv\",\"sgv\":${sgv}}"
 	echo $json

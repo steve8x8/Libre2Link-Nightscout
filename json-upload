@@ -25,6 +25,7 @@ else
     --data @data/sensors.json \
     2>&1 \
     | tee -a log/upload.log
+    echo ""
 fi
 
 for what in hist real
@@ -44,5 +45,6 @@ do
 	--data @data/sgv-${what}.json \
 	2>&1 \
 	| tee -a log/upload.log
+	echo ""
     fi
 done
