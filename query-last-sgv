@@ -14,7 +14,7 @@ curl \
     -H "API-SECRET: ${SECRETSHA1}" \
     -H 'Accept: */*' \
     -H 'Content-Type: application/json' \
-    "https://${SERVER}:${PORT}/api/v1/entries.json?count=1&find\[dateString\]\[\$gte\]=2020-01-01&find\[type\]=sgv" \
+    "https://${SERVER}:${PORT}/api/v1/entries.json?count=1&x=`date +%s`&find\[dateString\]\[\$gte\]=2020-01-01&find\[type\]=sgv" \
 | tee /dev/stderr \
 | sed -e 's~.*"date":\([0-9]*\)[^0-9].*~\1~' -e 's~null~0~' \
 > data/last-sgv.time
