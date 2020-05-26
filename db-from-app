@@ -20,7 +20,7 @@ fi
 
 mkdir -p tmp
 # backup data
-if [ -f tmp/librelink.ab ]
+if [ -s tmp/librelink.ab ]
 then
     read -p "\"librelink.ab\" already there, remove? (y/N) " x
     case $x in
@@ -42,7 +42,7 @@ then
 	    ;;
     esac
 fi
-if [ ! -f tmp/librelink.ab ] ; then
+if [ ! -s tmp/librelink.ab ] ; then
     echo no \"librelink.ab\" backup file found
     read -p "read from android device? (y/N) " x
     case $x in
@@ -67,7 +67,7 @@ else
 	    ;;
     esac
 fi
-if [ ! -f tmp/librelink.ab ] ; then
+if [ ! -s tmp/librelink.ab ] ; then
     echo "no \"librelink.ab\" backup file found - exiting"
     exit 98
 fi
@@ -76,7 +76,7 @@ fi
 # "abe" is renamed "abe.sh" with "abe.jar in same directory
 abe \
     unpack tmp/librelink.ab tmp/librelink.tar "" && \
-tar xf tmp/librelink.tar -C tmp/ && \
+LC_ALL=C tar xf tmp/librelink.tar -C tmp/ && \
 rm tmp/librelink.ab tmp/librelink.tar
 
 echo the unpacked app data can be found in tmp/apps/com.freestylelibre.app.de
