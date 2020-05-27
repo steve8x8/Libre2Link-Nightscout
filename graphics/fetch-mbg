@@ -1,0 +1,38 @@
+#!/bin/bash
+
+cd `dirname $0`
+
+# poor man's json_pp: only split records
+my_json_pp(){
+cat \
+| sed 's~\({\)~\
+\1~g' \
+| sed 's~\(\]\)~\
+\1~g' \
+| cat
+}
+
+#SECRET="MyAPIsecret"
+#SERVER="MyNSinstance"
+#PORT=4711
+. ../.settings
+SECRETSHA1=`echo -n ${SECRET} | sha1sum - | cut -c1-40`
+
+# get data from NightScout
+  LANG=C \
+  curl \
+    -s \
+    -H "API-SECRET: ${SECRETSHA1}" \
+    -H 'Accept: */*' \
+    -H 'Content-Type: application/json' \
+    "https://${SERVER}:${PORT}/api/v1/entries.json?count=2000&find\[dateString\]\[\$gte\]=2019-01-01&find\[type\]=mbg" \
+| my_json_pp \
+| grep '"type":"mbg"' \
+| while read line
+do
+    value=`echo $line | sed -e 's~.*"mbg":~~' -e 's~[,}].*~~'`
+    millis=`echo $line | sed -e 's~.*"date":~~' -e 's~[,}].*~~'`
+    datstr=`echo $line | sed -e 's~.*"dateString":"~~' -e 's~"[,}].*~~'`
+    printf "%s\t%s\t%5.1f\n" $datstr $millis $value
+done \
+> bg-ns.dump
