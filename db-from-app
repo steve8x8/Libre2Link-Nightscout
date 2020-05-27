@@ -47,12 +47,16 @@ if [ ! -s tmp/librelink.ab ] ; then
     read -p "read from android device? (y/N) " x
     case $x in
 	y*|Y*)
-	    echo We suggest to open the LibreLink app in the foreground.
+	    echo It is recommended to open the LibreLink app in the foreground.
 	    echo
-	    echo Confirm backup without password on Android device next:
+	    echo Confirm backup without password on Android device next.
+	    echo Caveat: There is a timeout of 60 seconds\!
+	    echo
 	    adb backup -f tmp/librelink.ab -noapk com.freestylelibre.app.de
+	    echo
 	    echo Now check that the Librelink app is still running,
 	    echo otherwise restart it \*now\* to avoid data loss\!
+	    echo
 	    ;;
 	*)
 	    ;;
@@ -68,7 +72,7 @@ else
     esac
 fi
 if [ ! -s tmp/librelink.ab ] ; then
-    echo "no \"librelink.ab\" backup file found - exiting"
+    echo "no meaningful \"librelink.ab\" backup file found - exiting"
     exit 98
 fi
 
@@ -79,6 +83,12 @@ abe \
 LC_ALL=C tar xf tmp/librelink.tar -C tmp/ && \
 rm tmp/librelink.ab tmp/librelink.tar
 
-echo the unpacked app data can be found in tmp/apps/com.freestylelibre.app.de
+target=tmp/apps/com.freestylelibre.app.de
+if [ -d ${target} ] ; then
+    echo the unpacked app data can be found in ${target}
+else
+    echo something went wrong when extracting the app data
+    exit 97
+fi
 
 exit 0
