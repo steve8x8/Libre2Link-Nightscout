@@ -9,7 +9,7 @@ upload: .settings data/sensors.json data/sgv-hist.json #data/sgv-real.json
 
 tar:
 	mkdir -p SAVE
-	LANG=C tar cf SAVE/all-`date +%Y%m%d-%H%M%S`.tar data tmp log
+	LC_ALL=C tar cf SAVE/all-`date +%Y%m%d-%H%M%S`.tar data tmp log
 
 clean:
 	rm -rf tmp
