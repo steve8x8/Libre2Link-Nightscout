@@ -1,5 +1,11 @@
 #!/usr/bin/make -f
 
+# in "normal" usage mode, only sensors need to be updated
+serial:	sensor clean
+
+sensor: .settings data/sensors.json
+	./json-upload
+
 all: json upload tar clean
 
 json:             data/sensors.json data/sgv-hist.json #data/sgv-real.json
@@ -47,4 +53,4 @@ data/sgv-hist.json: data/sg-hist.dump data/last-sgv-hist.time
 #	./dump-sgv-to-json
 
 
-.PHONY: all json upload tar clean
+.PHONY: serial sensor all json upload tar clean

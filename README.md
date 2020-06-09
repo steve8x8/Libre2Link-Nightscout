@@ -39,9 +39,20 @@
 - Archive: create a tarball in `SAVE/` of `tmp/`, `data/` and `log/`
 - Clean up: remove whole `tmp/` subtree, possibly do the same with `data/`
 
+- *This can also be done by running `make all` after connecting your smartphone*.
+
+
+### Get only sensor record(s):
+
+- Run `make serial`. This will backup the database, fetch the latest sensor records from
+  Nightscout, upload the yet unknown ones, and finally clean up.
+
+
 ## Volume of data collected:
 
-- The database storing the glucose values, `sas.db`,  grows by about 10MB per month.
+- The database storing the glucose values, `sas.db`,  grows by about 10MB per month, 
+  or 5MB per sensor lifetime.
+  Each (uncompressed) tarball will have about the same size!
 
 ## Tested on:
 
