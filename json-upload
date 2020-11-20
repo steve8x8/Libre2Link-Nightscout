@@ -16,7 +16,6 @@ else
     echo uploading sensors.json ...
     LANG=C \
     curl \
-    -v \
     -X POST \
     -H "API-SECRET: ${SECRETSHA1}" \
     -H 'Accept: */*' \

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# download app data and extract
+
+cd `dirname $0`
+
+# for adb and abe
+export PATH=`pwd`/tools:${PATH}
+
+if [ -d tmp/apps ]
+then
+    read -p "\"apps/\" already there, remove? (y/N) " x
+    case $x in
+	y*|Y*)
+	    rm -rf tmp/apps
+	    ;;
+	*)
+	    ;;
+    esac
+fi
+
+mkdir -p tmp/apps
+
+adb shell su -c "tar cf - -C /data/data com.freestylelibre.app.de/files" \
+| tar xf - -C tmp/apps && \
+mv tmp/apps/com.freestylelibre.app.de/{files,f}
+
+target=tmp/apps/com.freestylelibre.app.de
+if [ -d ${target} ] ; then
+    echo the unpacked app data can be found in ${target}
+else
+    echo something went wrong when extracting the app data
+    exit 97
+fi
+
+exit 0
