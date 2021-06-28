@@ -3,22 +3,34 @@
 cd `dirname $0`
 
 # catch "Illegal time format" (MacOSX)
-set -e
+DATE=date
+if ! $DATE -d@1 >/dev/null 2>/dev/null
+then
+    DATE=gdate
+    if ! $DATE -d@1 >/dev/null 2>/dev/null
+    then
+	echo no working \"date\" command found
+	exit 99
+    else
+	echo using \"gdate\" instead of \"date\"
+    fi
+fi
+
 # last sensor change, plus 14 days (runtime), minus 30 minutes (half startup)
 schange=$(($(cat ../data/last-sensor.time) / 1000))
-#if [ $schange -gt `date +%s` ]
+#if [ $schange -gt `$DATE +%s` ]
 #then
 #    schange=$(($schange - 14*86400 ))
 #fi
-tag1=${1:-`TZ=UTC date +"%Y-%m-%dT%H:%M:00Z" -d@$schange`}
-tag2=${2:-`TZ=UTC date +"%Y-%m-%dT%H:%M:00Z" -d"now"`}
+tag1=${1:-`TZ=UTC $DATE +"%Y-%m-%dT%H:%M:00Z" -d@$schange`}
+tag2=${2:-`TZ=UTC $DATE +"%Y-%m-%dT%H:%M:00Z" -d"now"`}
 sensor=${3:-"Last Libre2 sensor"}
 set +e
 
 # vertical line to mark sensor change
 cat > sensor.in <<EOF
-`TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d@$(($schange + 1800))` 0
-`TZ=UTC date +"%Y-%m-%dT%H:%M:%SZ" -d@$(($schange + 1800))` 500
+`TZ=UTC $DATE +"%Y-%m-%dT%H:%M:%SZ" -d@$(($schange + 1800))` 0
+`TZ=UTC $DATE +"%Y-%m-%dT%H:%M:%SZ" -d@$(($schange + 1800))` 500
 EOF
 
 (

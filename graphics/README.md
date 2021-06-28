@@ -3,7 +3,7 @@
 ## Prerequisites:
 
 - See `../README.md`.
-- Have a `date` command that knows about `-d@...`.
+- Have a `date` command that knows about `-d@...` (`coreutils` from HomeBrew provide `gdate`.)
 - Install `gnuplot` and `feh` image viewer.
 
 ## How to do it:
