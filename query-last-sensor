@@ -9,14 +9,31 @@ SECRETSHA1=`echo -n ${SECRET} | sha1sum - | cut -c1-40`
 mkdir -p data
 echo querying last sensor ...
 LANG=C \
+line=$(
 curl \
     -s \
     -H "API-SECRET: ${SECRETSHA1}" \
     -H 'Accept: */*' \
     -H 'Content-Type: application/json' \
-    "https://${SERVER}:${PORT}/api/v1/treatments.json?count=1&x=`date +%s`&find\[created_at\]\[\$gte\]=2020-01-01&find\[eventType\]=/Sensor/" \
+    "https://${SERVER}:${PORT}/api/v1/treatments.json?count=1&x=`date +%s`&find\[created_at\]\[\$gte\]=2020-01-01&find\[eventType\]=/Sensor+Change/" \
+)
+    echo LINE ${line} >&2
+    case "${line}" in
+	*"\"date\":"*)
+	    echo DATE >&2
+	    echo "${line}" \
+	    | sed -e 's~.*"date":\([0-9]*\)[^0-9].*~\1~' -e 's~null~0~'
+	    ;;
+	*"\"timestamp\":"*)
+	    echo TIMESTAMP >&2
+	    echo "${line}" \
+	    | sed -e 's~.*"timestamp":\([0-9]*\)[^0-9].*~\1~' -e 's~null~0~'
+	    ;;
+	*)
+	    echo NO MATCH >&2
+	    ;;
+    esac \
 | tee /dev/stderr \
-| sed -e 's~.*"date":\([0-9]*\)[^0-9].*~\1~' -e 's~null~0~' \
 > data/last-sensor.time
 echo ""
 # FIXME: handle empty result
