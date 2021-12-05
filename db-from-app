@@ -52,7 +52,7 @@ if [ ! -s tmp/librelink.ab ] ; then
 	    echo Confirm backup without password on Android device next.
 	    echo Caveat: There is a timeout of 60 seconds\!
 	    echo
-	    adb backup -f tmp/librelink.ab -noapk com.freestylelibre.app.de
+	    adb -d backup -f tmp/librelink.ab -noapk com.freestylelibre.app.de
 	    echo
 	    echo Now check that the Librelink app is still running,
 	    echo otherwise restart it \*now\* to avoid data loss\!

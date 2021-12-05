@@ -21,7 +21,7 @@ fi
 
 mkdir -p tmp/apps
 
-adb shell su -c "tar cf - -C /data/data com.freestylelibre.app.de/files" \
+adb -d shell su -c "tar cf - -C /data/data com.freestylelibre.app.de/files" \
 | tar xf - -C tmp/apps && \
 mv tmp/apps/com.freestylelibre.app.de/{files,f}
 
