@@ -47,3 +47,5 @@ do
 	echo ""
     fi
 done
+
+exit 0

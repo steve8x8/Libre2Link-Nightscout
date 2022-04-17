@@ -1,0 +1,60 @@
+#!/bin/bash
+
+cd `dirname $0`
+
+if [ -z "$1" ]
+then
+    echo "Usage:
+    $0 <serial> <startutc> ...
+    "
+    exit 99
+fi
+
+DATE=date
+if ! $DATE -d@1 >/dev/null 2>/dev/null
+then
+    DATE=gdate
+    if ! $DATE -d@1 >/dev/null 2>/dev/null
+    then
+	echo no working \"date\" command found >&2
+	exit 99
+    else
+	:
+	echo using \"gdate\" instead of \"date\" >&2
+    fi
+fi
+
+mkdir -p data
+
+(
+echo -n '['
+while true
+do
+    #read -p "Sensor serial number       (e.g. 3MH00123456): " code
+    code=$1; shift
+    [ -z "$code" ] && break
+    #read -p "Sensor start time (e.g. 2022-03-18T07:15:29Z): " datstr
+    datstr=$1; shift
+    millis=`TZ=UTC ${DATE} -d $datstr +%s`000
+    datstr=`echo $datstr | sed 's~Z*$~.000Z~'`
+    json="{\"eventType\":\"Sensor Change\",\"date\":${millis},\"created_at\":\"$datstr\",\"enteredBy\":\"new-sensor\",\"notes\":\"$code\"}"
+    echo $json
+done \
+| sort | uniq \
+| while read line
+do
+    echo ,
+    echo -n "$line"
+done
+echo ""
+echo ']'
+) \
+| sed 's~\[,~[~' \
+| tee data/sensors.json
+echo ""
+if [ `cat data/sensors.json | wc -l` -le 2 ]
+then
+    echo No new sensors, resulting json file is empty.
+fi
+
+exit
