@@ -6,17 +6,33 @@
 . .settings
 SECRETSHA1=`echo -n ${SECRET} | sha1sum - | cut -c1-40`
 
+WHAT="${1:-Change}"
+
 mkdir -p data
-echo querying last sensor ...
+echo querying last sensors ...
 LANG=C \
-line=$(
 curl \
     -s \
     -H "API-SECRET: ${SECRETSHA1}" \
     -H 'Accept: */*' \
     -H 'Content-Type: application/json' \
-    "https://${SERVER}:${PORT}/api/v1/treatments.json?count=1&x=`date +%s`&find\[created_at\]\[\$gte\]=2022-07-01&find\[eventType\]=/Sensor+Change/" \
-)
+    "https://${SERVER}:${PORT}/api/v1/treatments.json?count=10&x=`date +%s`&find\[created_at\]\[\$gte\]=2022-07-01&find\[eventType\]=/Sensor+${WHAT}/" \
+| sed -e 's~},{~}%{~g' \
+      -e 's~\[~[%~' -e 's~\]~%]~' \
+| sed -e 's~,"carbs":null~~g' \
+| sed -e 's~,"insulin":null~~g' \
+| sed -e 's~,"xdatex":[^,}]*~~g' \
+| sed -e 's~,"timestamp":[^,}]*~~g' \
+| sed -e 's~,"xcreated_atx":[^,}]*~~g' \
+| sed -e 's~,"uuid":[^,}]*~~g' \
+| sed -e 's~,"sysTime":[^,}]*~~g' \
+| sed -e 's~,"utcOffset":[^,}]*~~g' \
+| sed -e 's~,"enteredBy":[^,}]*~~g' \
+| tr '%' '\012'
+
+# do not process further
+exit
+
     echo LINE ${line} >&2
     case "${line}" in
 	*"\"date\":"*)
