@@ -18,6 +18,9 @@ tar:
 	LC_ALL=C tar cf SAVE/all-`date +%Y%m%d-%H%M%S`.tar data tmp log
 
 clean:
+	rm -rf tmp
+	rm -rf data log
+
 clean2:
 	rm -rf tmp
 	rm -rf data log
